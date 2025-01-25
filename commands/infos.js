@@ -53,11 +53,6 @@ module.exports = {
       fields: [
         { name: "Uptime", value: `${uptime} seconds`, inline: true },
         { name: "Bans Counter", value: `${bansCounter} bans`, inline: true },
-        {
-          name: "Days Since Last Badge Update",
-          value: `${daysSinceUpdate} days`,
-          inline: true,
-        },
       ],
       // The color of the embed
       color: 0x00ff00,

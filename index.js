@@ -9,6 +9,22 @@ const {
 } = require("discord.js");
 require("dotenv").config();
 
+// Check if all the necessary files and folders exist.
+// If not, log an error and exit the process.
+const dataDir = "./data";
+const bansDir = "./data/bans";
+const userBanDir = "./data/bans/users";
+const bansCounterFile = "./data/bansCounter.json";
+const messageIdFile = "./data/messageId.json";
+
+if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
+if (!fs.existsSync(bansDir)) fs.mkdirSync(bansDir);
+if (!fs.existsSync(userBanDir)) fs.mkdirSync(userBanDir);
+if (!fs.existsSync(bansCounterFile))
+  fs.writeFileSync(bansCounterFile, JSON.stringify({ bans: 0 }, null, 2));
+if (!fs.existsSync(messageIdFile))
+  fs.writeFileSync(messageIdFile, JSON.stringify({ messageId: null }, null, 2));
+
 // Initialize the Discord client with the necessary intents.
 // Intents determine what events your bot receives from Discord.
 // In this case, we're subscribing to the Guilds and GuildMembers intents.
@@ -26,7 +42,7 @@ const commandsPath = path.join(__dirname, "commands");
 // Read the files in the commands directory and filter out non-JS files.
 const commandFiles = fs
   .readdirSync(commandsPath)
-  .filter((file) => file.endsWith(".js"));
+  .filter((file) => (!file.startsWith("--") ? file.endsWith(".js") : false));
 
 // Create an array to store our commands in a format that can be registered with Discord.
 const commands = [];
@@ -43,7 +59,7 @@ for (const file of commandFiles) {
   // If not, log an error and skip this command.
   if (!command.data || !command.execute) {
     console.error(
-      `⚠️ Command in ${file} is missing the "data" or "execute" property.`
+      `⚠️ [index] Command in ${file} is missing the "data" or "execute" property.`
     );
     continue;
   }
@@ -53,7 +69,7 @@ for (const file of commandFiles) {
   commands.push(command.data.toJSON()); // Add to the commands array
 
   // Log a success message.
-  console.log(`✅ Command loaded: ${command.data.name}`);
+  console.log(`✅ [index] Command loaded: ${command.data.name}`);
 }
 
 // Define the path to our events directory.
@@ -76,7 +92,7 @@ for (const file of eventFiles) {
   // If not, log an error and skip this event.
   if (!event.name || !event.execute) {
     console.error(
-      `⚠️ Event in ${file} is missing the "name" or "execute" property.`
+      `⚠️ [index] Event in ${file} is missing the "name" or "execute" property.`
     );
     continue;
   }
@@ -84,10 +100,10 @@ for (const file of eventFiles) {
   // Set up the event listener.
   // If the event is marked as once, use client.once; otherwise, use client.on.
   if (event.once) {
-    console.log(`🔄 Loading one-time event: ${event.name}`);
+    console.log(`🔄 [index] Loading one-time event: ${event.name}`);
     client.once(event.name, (...args) => event.execute(...args, client));
   } else {
-    console.log(`🔁 Loading recurring event: ${event.name}`);
+    console.log(`🔁 [index] Loading recurring event: ${event.name}`);
     client.on(event.name, (...args) => event.execute(...args, client));
   }
 }
@@ -98,22 +114,22 @@ const rest = new REST({ version: "10" }).setToken(process.env.DISCORD_TOKEN);
 // Register our commands with Discord using the REST client.
 (async () => {
   try {
-    console.log("🚀 Starting command registration...");
+    console.log("🚀 [index] Starting command registration...");
 
     // Put the commands array to the Discord API.
     await rest.put(Routes.applicationCommands(process.env.CLIENT_ID), {
       body: commands,
     });
 
-    console.log("✅ Commands registered successfully!");
+    console.log("✅ [index] Commands registered successfully!");
   } catch (error) {
-    console.error("❌ Command registration failed:", error);
+    console.error("❌ [index] Command registration failed:", error);
   }
 })();
 
 // Catch and log any unhandled promise rejections.
 process.on("unhandledRejection", (error) => {
-  console.error("❌ Unhandled promise rejection:", error);
+  console.error("❌ [index] Unhandled promise rejection:", error);
 });
 
 // Log in to Discord using the token from the .env file.

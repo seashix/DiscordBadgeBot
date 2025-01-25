@@ -11,7 +11,10 @@ module.exports = {
    */
   execute(interaction) {
     // Log the received interaction command name
-    console.log("🚀 Interaction received:", interaction.commandName);
+    console.log(
+      "🚀 [interactionCreate] Interaction received:",
+      interaction.commandName
+    );
 
     // Check if the interaction is a chat input command
     // This is a type of interaction that is triggered by a user typing a command in a chat.
@@ -24,7 +27,7 @@ module.exports = {
     // If the command is not found, log an error
     if (!command) {
       console.error(
-        `❌ No matching command found for ${interaction.commandName}`
+        `❌ [interactionCreate] No matching command found for ${interaction.commandName}.`
       );
       return;
     }
@@ -35,7 +38,10 @@ module.exports = {
       command.execute(interaction);
     } catch (error) {
       // Log any errors that occur during command execution
-      console.error(`❌ Error executing ${interaction.commandName}:`, error);
+      console.error(
+        `❌ [interactionCreate] Error executing ${interaction.commandName}:`,
+        error
+      );
       // Reply to the interaction with an error message
       // This sends a message back to the user who triggered the interaction, indicating that an error occurred.
       interaction.reply({

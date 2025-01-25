@@ -24,7 +24,7 @@ module.exports = {
    */
   execute(client) {
     // Log a message indicating that the bot is online
-    console.log(`✅ ${client.user.tag} is now online!`);
+    console.log(`✅ [ready] ${client.user.tag} is now online!`);
 
     function updatePresence() {
       const filePath = "./data/badgesCounter.json";
@@ -45,7 +45,9 @@ module.exports = {
       );
       const timeRemaining = 30 - daysSinceUpdate;
 
-      console.log(`🔄 Updating presence: ${timeRemaining} days remaining`);
+      console.log(
+        `🔄 [ready] Updating presence: ${timeRemaining} days remaining.`
+      );
 
       client.user.setPresence({
         status: "online",
