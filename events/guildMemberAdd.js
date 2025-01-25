@@ -1,5 +1,6 @@
 const { EmbedBuilder } = require("discord.js");
 const fs = require("fs");
+const path = require("path");
 
 /**
  * Event handler for when a member joins the guild.
@@ -54,14 +55,24 @@ module.exports = {
       const bannisChannel = await client.channels.fetch(bannisChannelId);
       const messages = await bannisChannel.messages.fetch();
       const targetMessage = messages.find((msg) =>
-        msg.content.includes("There are")
+        msg.content.includes(bansCounter - 1)
       );
 
+      let messageId; // Variable to store the message ID
+      const messageContent = `There are ${bansCounter} people who have already joined the server and have been banned to preserve the security and anonymity of my development. 😍`;
+
       if (targetMessage) {
-        await targetMessage.edit(
-          `There are ${bansCounter} people who have already joined the server and have been banned to preserve the security and anonymity of my development. 😍`
-        );
+        // If the message exists, edit it
+        messageId = targetMessage.id; // Store the ID for future reference
+        await targetMessage.edit(messageContent);
+      } else {
+        // If the message does not exist, create a new one
+        const newMessage = await bannisChannel.send(messageContent);
+        messageId = newMessage.id; // Store the ID of the newly created message
       }
+
+      // Optionally, you can save the message ID to a file or database if needed
+      console.log(`Message ID: ${messageId}`);
 
       // Log success to the logs channel using Discord.js's TextChannel.send() method
       const logsChannel = await client.channels.fetch(logsChannelId);
@@ -73,8 +84,58 @@ module.exports = {
         .setColor("GREEN");
 
       await logsChannel.send({ embeds: [successEmbed] });
+
+      // Create a bans counter and user data JSON file
+      const counterFilePath = "./data/bans/counter.json";
+      const userDir = "./data/bans/user/";
+
+      // Check if the counter file exists
+      let bansCount = 0;
+      if (fs.existsSync(counterFilePath)) {
+        const data = fs.readFileSync(counterFilePath);
+        bansCount = JSON.parse(data).count;
+      } else {
+        // Create the counter file with initial value
+        fs.writeFileSync(
+          counterFilePath,
+          JSON.stringify({ count: bansCount }, null, 2)
+        );
+      }
+
+      // Increment the ban counter
+      bansCount += 1;
+      fs.writeFileSync(
+        counterFilePath,
+        JSON.stringify({ count: bansCount }, null, 2)
+      );
+
+      // Save user data
+      const userId = member.id;
+      const userFilePath = path.join(userDir, `${userId}.json`);
+
+      // User information to save
+      const userInfo = {
+        id: member.id,
+        username: member.user.username,
+        display_name: member.displayName,
+        avatar: member.user.avatar,
+        createdAt: member.user.createdAt,
+        joinedAt: member.joinedAt,
+      };
+
+      // Ensure the user directory exists
+      if (!fs.existsSync(userDir)) {
+        fs.mkdirSync(userDir, { recursive: true });
+      }
+
+      // Save user information to their respective file
+      fs.writeFileSync(userFilePath, JSON.stringify(userInfo, null, 2));
+
+      console.log(
+        `⛔ User banned: ${member.user.username}. Total bans: ${bansCount}`
+      );
     } catch (error) {
-      console.error("Error banning member:", error);
+      console.error("❌ Error banning member:", error);
 
       // Log error to the logs channel using Discord.js's TextChannel.send() method
       const logsChannel = await client.channels.fetch(logsChannelId);
