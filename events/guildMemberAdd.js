@@ -2,6 +2,7 @@ const { EmbedBuilder } = require("discord.js");
 const fs = require("fs");
 const path = require("path");
 
+// TODO : Fix the bansCounter broken and the message ID not used for edit message and all time create new...
 module.exports = {
   // Event handler for the "guildMemberAdd" event
   name: "guildMemberAdd",
@@ -18,11 +19,6 @@ module.exports = {
     // Variables to store the ban counter and the message ID
     let bansCounter = 0;
     let messageId = null;
-
-    // Utility function to save the current ban counter to the file
-    function saveBansCounter() {
-      fs.writeFileSync(bansCounterFile, JSON.stringify({ bans: bansCounter }));
-    }
 
     // Utility function to save the message ID to the file
     function saveMessageId(id) {
@@ -86,9 +82,15 @@ module.exports = {
         `⛔ [guildMemberAdd] User banned: ${member.user.tag} (${member.id}).`
       );
 
+      // Read the current ban counter from the file
+      if (fs.existsSync(bansCounterFile)) {
+        const data = fs.readFileSync(bansCounterFile);
+        bansCounter = JSON.parse(data).bans || 0;
+      }
+
       // Increment the ban counter and save it to the file
       bansCounter++;
-      saveBansCounter();
+      fs.writeFileSync(bansCounterFile, JSON.stringify({ bans: bansCounter }));
 
       // Save user information in a JSON file for future reference
       const userInfo = {
