@@ -111,25 +111,6 @@ const rest = new REST({ version: "10" }).setToken(process.env.DISCORD_TOKEN);
   }
 })();
 
-// Update the bot's presence every 10 minutes.
-let lastBadgeUpdate = Date.now();
-setInterval(() => {
-  const daysSinceUpdate = Math.floor(
-    (Date.now() - lastBadgeUpdate) / (1000 * 60 * 60 * 24)
-  );
-  const timeRemaining = 30 - daysSinceUpdate;
-
-  console.log(`🔄 Updating presence: ${timeRemaining} days remaining`);
-
-  // Set the bot's presence to "online" with a playing status.
-  client.user.setPresence({
-    status: "online",
-    activities: [
-      { name: `Update badge in ${timeRemaining} days`, type: 0 }, // Type 0 = Playing
-    ],
-  });
-}, 10 * 60 * 1000);
-
 // Catch and log any unhandled promise rejections.
 process.on("unhandledRejection", (error) => {
   console.error("❌ Unhandled promise rejection:", error);

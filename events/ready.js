@@ -1,3 +1,5 @@
+const fs = require("fs");
+
 /**
  * This module exports an event listener for the 'ready' event in DiscordJS.
  * The 'ready' event is emitted when the bot is fully connected to Discord and ready to start receiving events.
@@ -23,5 +25,42 @@ module.exports = {
   execute(client) {
     // Log a message indicating that the bot is online
     console.log(`✅ ${client.user.tag} is now online!`);
+
+    function updatePresence() {
+      const filePath = "./data/badgesCounter.json";
+      let lastBadgeUpdate = Date.now();
+
+      // Check if the badgesCounter.json file exists
+      if (fs.existsSync(filePath)) {
+        const data = fs.readFileSync(filePath);
+        lastBadgeUpdate = JSON.parse(data).lastBadgeUpdate;
+      } else {
+        // Create the file with the current timestamp
+        const initialData = { lastBadgeUpdate: lastBadgeUpdate };
+        fs.writeFileSync(filePath, JSON.stringify(initialData, null, 2));
+      }
+
+      const daysSinceUpdate = Math.floor(
+        (Date.now() - lastBadgeUpdate) / (1000 * 60 * 60 * 24)
+      );
+      const timeRemaining = 30 - daysSinceUpdate;
+
+      console.log(`🔄 Updating presence: ${timeRemaining} days remaining`);
+
+      client.user.setPresence({
+        status: "online",
+        activities: [
+          { name: `/update-badge in ${timeRemaining} days max.`, type: 0 }, // Type 0 = Playing
+        ],
+      });
+    }
+
+    // Set the bot's presence immediately
+    updatePresence();
+
+    // Update the bot's presence every 10 minutes.
+    setInterval(() => {
+      updatePresence();
+    }, 10 * 60 * 1000);
   },
 };
