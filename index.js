@@ -12,10 +12,10 @@ require("dotenv").config();
 // Check if all the necessary files and folders exist.
 // If not, log an error and exit the process.
 const dataDir = "./data";
-const bansDir = "./data/bans";
-const userBanDir = "./data/bans/users";
-const bansCounterFile = "./data/bansCounter.json";
-const messageIdFile = "./data/messageId.json";
+const bansDir = dataDir + "/bans";
+const userBanDir = bansDir + "/users";
+const bansCounterFile = dataDir + "/bansCounter.json";
+const messageIdFile = dataDir + "/messageId.json";
 
 if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
 if (!fs.existsSync(bansDir)) fs.mkdirSync(bansDir);

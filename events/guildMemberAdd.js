@@ -5,7 +5,7 @@ const path = require("path");
 module.exports = {
   // Event handler for the "guildMemberAdd" event
   name: "guildMemberAdd",
-  async execute(member) {
+  async execute(member, client) {
     // Paths for storing data and logs
     const userBanDir = "./data/bans/users"; // Directory for individual user ban files
     const bansCounterFile = "./data/bansCounter.json"; // File to store the ban counter
@@ -34,11 +34,26 @@ module.exports = {
 
     // Create an embed message to send to the banned user via DM
     const dmEmbed = new EmbedBuilder()
-      .setTitle("Information")
+      .setTitle("Informations")
       .setDescription(
-        `Sorry ${member.user.displayName} (@${member.user.tag}), this server is only for a bot in development. You have been automatically banned to preserve security.`
+        `Sorry ${member.user.displayName} (@${member.user.tag}), we can't keep you on it for the reasons explained below. 
+        This Discord server is not just a “support” server, but above all a development server for a development bot. 
+        
+        You will therefore be automatically banned from the server to preserve the security of the information and the tests carried out on it.
+        You have been ${bansCounter} to join the server and have them this message (including you).`
       )
-      .setColor("#ED4245"); // Red color for critical actions (e.g., bans)
+      .setFields({
+        name: "📝 **Ads**",
+        value: `Find my source code on GitHub via the following link.
+        https://github.com/seashix/DiscordBadgeBot
+        
+        And you, too, get the developer badge while also having this type of automatic ban when needed.`,
+      })
+      .setColor("#3c74cf")
+      .setTimestamp()
+      .setFooter({
+        text: `2025 © ${client.user.username}#${client.user.discriminator} by Seashix`,
+      });
 
     try {
       // Attempt to send a direct message (DM) to the user before banning them
